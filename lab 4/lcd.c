@@ -13,7 +13,7 @@
  * LCD's pins
  */
 
-//SERIAL CHIP ENABLE to SLAVE SELECT : default pin 10 
+//SERIAL CHIP ENABLE to SLAVE SELECT : default pin 10
 #define LCD_SCE 2
 
 //SIGNAL RESET for operation of LCD
@@ -25,7 +25,7 @@
 //DATA IN TO SLAVE always pin 11 (MOSI)
 #define LCD_DIN 3
 
- //clock line always pin 13 (SERIAL CLOCK)
+//clock line always pin 13 (SERIAL CLOCK)
 #define LCD_CLK 5
 
 #define LCD_CONTRAST 0x40
@@ -80,7 +80,7 @@ void lcd_init(void)
 
 
 
-void lcd_clear() 
+void lcd_clear()
 {
 	//TODO clear LCD screen
 }
@@ -102,6 +102,10 @@ void lcd_write_char(char code)
 void lcd_write_string(char string[])
 {
 	//TODO write string (use lcd_write_char)
+	int i = 0;
+	while (string[i]) {
+		lcd_write_char(string[i++]);
+	}
 }
 
 
@@ -109,14 +113,14 @@ void write_cmd(uint8_t cmd)
 {
 	// 1. Set D/C to command mode (low)
 	PORT_LCD &= ~(1 << LCD_DC);
-	
+
 	// 2. Set SCE low
 	PORT_LCD &= ~(1 << LCD_SCE);
-	
+
 	// 3. Use SPI to load data to register and wait until transmission complete
 	SPDR = cmd;
-	while(!(SPSR & (1 << SPIF)) );
-	
+	while (!(SPSR & (1 << SPIF)) );
+
 	// 4. Set SCE high
 	PORT_LCD |= (1 << LCD_SCE);
 }
@@ -127,13 +131,13 @@ void write_data(uint8_t data)
 	//TODO
 	// 1. Set D/C to data mode (high)
 	PORT_LCD |= (1 << LCD_DC);
-	
+
 	// 2. Set SCE low
 	PORT_LCD &= ~(1 << LCD_SCE);
-	
+
 	// 3. Use SPI to load data to register and wait until transmission complete
 	SPDR = data;
-	while(!(SPSR & (1 << SPIF)) );
+	while (!(SPSR & (1 << SPIF)) );
 	// 4. Set SCE high
 	PORT_LCD |= (1 << LCD_SCE);
 }
