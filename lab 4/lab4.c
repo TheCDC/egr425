@@ -42,6 +42,7 @@ struct State FSM[6] = {							// East - North
 #define PORT_BUTTON PORTC
 #define DDR_BUTTON DDRC
 #define PIN_BUTTON PINC
+
 void mydelay_ms(uint16_t count);
 void playNote(uint16_t wavelength, uint16_t duration);
 
@@ -76,7 +77,9 @@ int main(void)
 			if ((PIN_BUTTON & 1) == 0) {
 				S = FSM[S].Next[4];     //transition to next state
 				lcd_clear();
+
 				lcd_write_string("CROSS");
+				playNote(C4,NOTE_DURATION);
 			}
 			else {
 				S = FSM[S].Next[i];     //transition to next state
