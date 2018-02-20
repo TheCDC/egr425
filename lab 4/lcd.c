@@ -38,10 +38,17 @@ void lcd_init(void)
 	/* TODO : Set appropriate pins as output as discussed in lecture */
 	//Add your code here!
 	//1. Set data direction register
-
+	DDR_LCD |=   1 << LCD_SCE | 1 << LCD_RST | 1 << LCD_DC | 1 << LCD_DIN | 1 << LCD_CLK;
 	//2. Reset display
-
+	PORT_LCD |= (1 << LCD_RST);
+	PORT_LCD &= ~(1 << LCD_SCE);
+	_delay_ms(50);
+	PORT_LCD &= ~(1 << LCD_RST);
+	_delay_ms(100);
+	PORT_LCD |= (1 << LCD_RST);
 	//3. Enable SPI
+	SPCR |= 1 << SPE | 1 << MSTR | 1 << SPR0;
+
 
 
 	/*
