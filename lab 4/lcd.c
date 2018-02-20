@@ -83,6 +83,9 @@ void lcd_init(void)
 void lcd_clear()
 {
 	//TODO clear LCD screen
+	for (int i = 0; i < 84; i++) {
+		write_data(0);
+	}
 }
 
 void lcd_fill(void)
