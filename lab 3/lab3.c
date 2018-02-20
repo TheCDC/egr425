@@ -35,6 +35,11 @@ struct State FSM[6] = {							// East - North
 	{0b1100100, 500, {GO_E, GO_E, GO_E, GO_E, WALKING_E}},
 };
 
+#define PORT_LED PORTD
+#define DDR_LED DDRD
+#define PORT_BUTTON PORTC
+#define DDR_BUTTON DDRC
+#define PIN_BUTTON DDRC
 void mydelay_ms(uint16_t count);
 void playNote(uint16_t wavelength, uint16_t duration);
 
@@ -44,13 +49,13 @@ uint8_t S; // current state
 int main(void)
 {
 	// Set D pins to output
-	DDRD = 0b11111111;
+	DDR_LED = 0b11111111;
 
 	// Set B pins to input
-	DDRB = 0;
+	DDR_BUTTON = 0;
 
 	// Enable pull-up resistors
-	PORTB = 0xFF;
+	PORT_BUTTON = 0xFF;
 
 	//initial state
 	S = GO_N;
@@ -60,11 +65,11 @@ int main(void)
 
 	while (1) {
 		for (i = 0; i < 4; i++) { //why loop 4 times?
-			PORTD = FSM[S].Out;     //output lights
+			PORT_LED = FSM[S].Out;     //output lights
 			// PORTD = PINB;     //output lights
 			mydelay_ms(FSM[S].Time);  //delay
 			// while (!(DDRB & 1)) {}
-			if ((PINB & 1) == 0) {
+			if ((PIN_BUTTON & 1) == 0) {
 				S = FSM[S].Next[4];     //transition to next state
 			}
 			else {
