@@ -15,5 +15,7 @@
 
 
 int main(void) { 
-
+	lcd_init();
+	lcd_clear();
+	lcd_write_string("lolol");
 }
