@@ -1,7 +1,7 @@
 
 /*
  * Lab 4
- * Name: 
+ * Name:
  */
 
 
@@ -14,8 +14,19 @@
 
 
 
-int main(void) { 
+int main(void) {
 	lcd_init();
 	lcd_clear();
-	lcd_write_string("lolol");
+	while (1) {
+
+		lcd_write_string("wololo");
+		_delay_ms(500);
+		lcd_clear();
+		_delay_ms(500);
+		lcd_write_string("test");
+		_delay_ms(500);
+		lcd_clear();
+		_delay_ms(500);
+
+	}
 }

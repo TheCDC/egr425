@@ -90,14 +90,21 @@ void lcd_init(void)
 void lcd_clear()
 {
 	//TODO clear LCD screen
-	for (int i = 0; i < 84; i++) {
-		write_data(0);
+	/* Clear LCD RAM */
+	write_cmd(0x80);
+
+	write_cmd(LCD_CONTRAST);
+	for (int i = 0; i < 84*6; i++) {
+		write_data(0x00);
 	}
 }
 
 void lcd_fill(void)
 {
-	//TODO fill LCD screen
+	//TODO clear LCD screen
+	for (int i = 0; i < 84 * 6; i++) {
+		write_data(0xFF);
+	}
 }
 
 void lcd_write_char(char code)
