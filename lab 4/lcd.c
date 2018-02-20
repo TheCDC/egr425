@@ -126,11 +126,15 @@ void write_data(uint8_t data)
 {
 	//TODO
 	// 1. Set D/C to data mode (high)
+	PORT_LCD |= (1 << LCD_DC);
 	
 	// 2. Set SCE low
+	PORT_LCD &= ~(1 << LCD_SCE);
 	
 	// 3. Use SPI to load data to register and wait until transmission complete
-	
+	SPDR = data;
+	while(!(SPSR & (1 << SPIF)) );
 	// 4. Set SCE high
+	PORT_LCD |= (1 << LCD_SCE);
 }
 
