@@ -31,6 +31,7 @@
 #define LCD_CONTRAST 0x40
 
 
+void write_cmd(uint8_t cmd);
 
 void lcd_init(void)
 {

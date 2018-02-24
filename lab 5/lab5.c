@@ -19,9 +19,12 @@
 
 void mydelay_ms(uint16_t count);
 void playNote(uint16_t wavelength, uint16_t duration);
-void initADC() ;
-uint16_t readADC();
+void initADC();
 
+void writeFloat(float val);
+uint16_t readADC();
+float readTemp();
+int16_t readLight();
 
 int main(void)
 {
@@ -29,9 +32,13 @@ int main(void)
 	while (1) {
 		initADC();
 
-		uint16_t x = readADC();
-		char out[10];
-		sprintf(out, "%d", x);
+		float t = readTemp();
+		uint16_t l = readLight();
+		char out[20];
+		lcd_write_string("Temp: ");
+		writeFloat(t);
+		lcd_write_string("    ");
+		sprintf(out, "Light: %d", l);
 		lcd_write_string(out);
 		mydelay_ms(100);
 		lcd_clear();
@@ -66,9 +73,23 @@ uint16_t readADC() {
 	uint16_t l = ADCL;
 	r = l;
 	r = ((ADCH) << 8) | l;
-;
+
 	return r;
 }
+
+float readTemp() {
+	ADMUX &= 0b11111000;
+	uint16_t sensorReading = readADC();
+    float mvReading = (5000.0/1024.0) * sensorReading;
+	return (mvReading - 500.0) / 10.0;
+}
+
+int16_t readLight() {
+	ADMUX |= 0b00000001;
+	return readADC();
+}
+
+
 void mydelay_ms(uint16_t count) {
 	while (count--) {
 		_delay_ms(1);
@@ -86,4 +107,13 @@ void playNote(uint16_t wavelength, uint16_t duration)
 		}
 		PORTD ^= (1 << 7);
 	}
+}
+
+void writeFloat(float val) {
+		int integer, decimal;	
+		integer = val;
+		decimal = (val - integer) * 10000;
+		char out[10];
+		sprintf(out, "%d.%d", integer, decimal);
+		lcd_write_string(out);
 }
