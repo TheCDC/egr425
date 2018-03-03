@@ -8,6 +8,7 @@ int showScreenSaver = 0;
 int adcValue = 0;
 int state = -1;
 int frame = 0;
+char animation[5] = "-\\|/*";
 void initInterrupt();
 void initADC();
 void mydelay_ms(uint16_t count);
@@ -35,9 +36,11 @@ int main(void) {
 			mydelay_ms(50);
 		}
 		else if (state == 0) {
-			lcd_write_char("-\\|/*"[frame % 5]);
-			// lcd_write_string("main");
-			mydelay_ms(50);
+			char s[2];
+			s[0] = animation[frame % 5];
+			s[1] = '\0';
+			lcd_write_string(s);
+			// mydelay_ms(1);
 		}
 		else if (state == 1) {
 			lcd_clear();
