@@ -92,6 +92,7 @@ ISR(INT0_vect) {
 
 ISR(INT1_vect) {
 	lcd_clear();
+	mydelay_ms(50);
 	if (state == 0) {
 		state = 2;
 	} else {
