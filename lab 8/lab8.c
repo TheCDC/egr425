@@ -13,15 +13,9 @@ int main(void) {
 	initADC();
 	initTimer1Servo();
 	sei();
-	while (1) {
-		for (int i = 0 ; i < (1 << 8); i += 2) {
-			OCR1A = ((adcValue >> 3) << 6);
-			mydelay_ms(10);
+while(1){
 
-		}
-
-	}
-
+}
 }
 
 
@@ -81,6 +75,7 @@ void initADC() {
 ISR(ADC_vect) {
 	ADCSRA &= ~(1 << ADIE);    // Disable Interrupts
 	adcValue = readADC();
+	OCR1A = ((adcValue >> 3) << 6);
 	ADCSRA |= (1 << ADIE);    // enable Interrupts
 	// lcd_clear();
 	// lcd_write_string("Release to read light...");
