@@ -71,13 +71,47 @@ STyp Enemy[4];
 STyp Player;
 STyp Missile;
 
+// Atmega328 interrupts
+// https://sites.google.com/site/qeewiki/books/avr-guide/external-interrupts-on-the-atmega328
+
+void initButtonInterrupt() {
+	EIMSK |= (1 << INT0);
+	EIMSK |= (1 << INT1);
+	// EIMSK |= (1 << INT2);
+	EICRA &= 0b0000;
+	sei();    // Enable interrupts
+}
+
 
 int main() {
+
+	// Set B pins to input
+	DDRD = 0x00;
+
+	// Enable pull-up resistors
+	PORTD |= (1 << 2);
+	PORTD |= (1 << 3);
+	// PORTD |= (1 << 4);
+
+	initButtonInterrupt();
+
 	nokia_lcd_init();
 	nokia_lcd_clear();
+	nokia_lcd_render();
+	// nokia_lcd_fill();
 	Nokia5110_OutString("lcd is alive");
-	nokia_lcd_fill();
 	while (1) {
 
 	}
+}
+ISR(INT0_vect) {
+	nokia_lcd_clear();
+	nokia_lcd_render();
+	Nokia5110_OutString("INT0");
+}
+
+ISR(INT1_vect) {
+	nokia_lcd_clear();
+	nokia_lcd_render();
+	Nokia5110_OutString("INT1");
 }

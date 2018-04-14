@@ -1,6 +1,6 @@
 DEVICE     = atmega328p
 CLOCK      = 16000000
-PROGRAMMER = -c arduino -b 115200 -P COM4
+PROGRAMMER = -c arduino -b 115200 -P /dev/ttyACM0
 OBJECTS    = lab9.o Nokia5110.o
 FUSES      = -U hfuse:w:0xde:m -U lfuse:w:0xff:m -U efuse:w:0x05:m
 
