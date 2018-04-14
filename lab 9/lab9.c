@@ -5,6 +5,9 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include "Nokia5110.h"
+#include <stdint.h>            // has to be added to use uint8_t
+
+
 
 
 // *************************** Images ***************************
@@ -71,47 +74,85 @@ STyp Enemy[4];
 STyp Player;
 STyp Missile;
 
+volatile int state;
+volatile int button;
+int* button_ptr = &button;
+
+void mydelay_ms(uint16_t count);
+
+
 // Atmega328 interrupts
 // https://sites.google.com/site/qeewiki/books/avr-guide/external-interrupts-on-the-atmega328
 
+void initButtonPins() {
+	// Set B pins to input
+	DDRD = 0x00;
+
+	// Enable pull-up resistors
+	PORTD |= (1 << DDB2);
+	PORTD |= (1 << DDB3);
+	PORTD |= (1 << DDB4);
+}
+
 void initButtonInterrupt() {
-	EIMSK |= (1 << INT0);
-	EIMSK |= (1 << INT1);
 	// EIMSK |= (1 << INT2);
-	EICRA &= 0b0000;
+	// EICRA &= 0b0000;
+	PCICR |= (1 << PCIE2);    // set PCIE2 to enable PCMSK0 scan
+	PCMSK2 |= (1 << PCINT18);
+	PCMSK2 |= (1 << PCINT19);
+	// PCMSK2 |= (1 << PCINT20);
 	sei();    // Enable interrupts
 }
 
 
 int main() {
+	state = 97;
+	button = 0;
 
-	// Set B pins to input
-	DDRD = 0x00;
-
-	// Enable pull-up resistors
-	PORTD |= (1 << 2);
-	PORTD |= (1 << 3);
-	// PORTD |= (1 << 4);
-
+	initButtonPins();
 	initButtonInterrupt();
 
 	nokia_lcd_init();
 	nokia_lcd_clear();
-	nokia_lcd_render();
 	// nokia_lcd_fill();
 	Nokia5110_OutString("lcd is alive");
+	nokia_lcd_render();
 	while (1) {
+		nokia_lcd_clear();
+		nokia_lcd_render();
+		char out[10] = {0};
+		sprintf(out, "%d", button);
+
+		Nokia5110_OutString(out);
+		// nokia_lcd_render();
+		button ++;
+		state ++;
+		mydelay_ms(100);
 
 	}
 }
-ISR(INT0_vect) {
-	nokia_lcd_clear();
-	nokia_lcd_render();
-	Nokia5110_OutString("INT0");
+
+ISR(PCINT18_vect) {
+	cli();
+	Nokia5110_OutString("18");
+	*button_ptr = 18;
+	button = 18;
+	if ( (PIND & (1 << PIND2)) == 1 )
+	{
+		/* LOW to HIGH pin change */
+
+	}
+	else
+	{
+		/* HIGH to LOW pin change */
+		// state = 0;
+	}
+	sei();
 }
 
-ISR(INT1_vect) {
-	nokia_lcd_clear();
-	nokia_lcd_render();
-	Nokia5110_OutString("INT1");
+
+void mydelay_ms(uint16_t count) {
+	while (count--) {
+		_delay_ms(1);
+	}
 }
