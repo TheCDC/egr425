@@ -76,6 +76,7 @@ STyp Enemy[4];
 STyp Player;
 STyp Missile;
 
+uint16_t enemies_y = 10;
 volatile uint8_t all_buttons;
 
 void mydelay_ms(uint16_t count);
@@ -85,8 +86,8 @@ void mydelay_ms(uint16_t count);
 // https://sites.google.com/site/qeewiki/books/avr-guide/external-interrupts-on-the-atmega328
 void initGame() {
 	for (uint8_t i; i < NUM_ENEMIES; i ++) {
-		Enemy[i].x = 10 + i * 12;
-		Enemy[i].y = 10;
+		Enemy[i].x = i * 16;
+		Enemy[i].y = enemies_y;
 		Enemy[i].image = SmallEnemy;
 
 	}
@@ -100,7 +101,7 @@ void initGame() {
 
 void drawGame() {
 
-	for (uint8_t i; i < NUM_ENEMIES; i ++) {
+	for (uint8_t i = 0; i < NUM_ENEMIES; i ++) {
 		Nokia5110_PrintBMP(Enemy[i].x, Enemy[i].y, Enemy[i].image, 1);
 	}
 	Nokia5110_PrintBMP(Player.x, Player.y, Player.image, 1);
@@ -109,9 +110,11 @@ void drawGame() {
 
 void advanceGame() {
 	// ========== Enemies ==========
-	for (uint8_t i; i < NUM_ENEMIES; i ++) {
-		Enemy[i].y += 1;
+	enemies_y += 1;
+	for (uint8_t i = 0; i < NUM_ENEMIES; i ++) {
+		Enemy[i].y = enemies_y / 2;
 	}
+	// Enemy[1].y = 10;
 	// ========== Player ==========
 	int speed = 4;
 	if ((~all_buttons) & (1 << DDB2)) {
@@ -190,7 +193,7 @@ int main() {
 
 
 		char out[10] = {0};
-		sprintf(out, "%d", Player.y);
+		sprintf(out, "%d", Player.x);
 		Nokia5110_OutString(out);
 
 		// nokia_lcd_render();
