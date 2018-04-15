@@ -70,7 +70,7 @@ struct State {
 
 typedef struct State STyp;
 
-const uint8_t NUM_ENEMIES =  4;
+const uint8_t NUM_ENEMIES = 4;
 
 STyp Enemy[4];
 STyp Player;
@@ -85,20 +85,21 @@ void mydelay_ms(uint16_t count);
 // https://sites.google.com/site/qeewiki/books/avr-guide/external-interrupts-on-the-atmega328
 void initGame() {
 	for (uint8_t i; i < NUM_ENEMIES; i ++) {
-		Enemy[i].x = 10 + i * 15;
-		Enemy[i].y = 20;
+		Enemy[i].x = 10 + i * 12;
+		Enemy[i].y = 10;
 		Enemy[i].image = SmallEnemy;
 
 	}
 	Player.x = 20;
-	Player.y = 40;
+	Player.y = 47;
 	Player.image = PlayerShip;
-	Missile.x = -10;
-	Missile.y = -10;
+	Missile.x = 100;
+	Missile.y = 100;
 	Missile.image = MissileImg;
 }
 
 void drawGame() {
+
 	for (uint8_t i; i < NUM_ENEMIES; i ++) {
 		Nokia5110_PrintBMP(Enemy[i].x, Enemy[i].y, Enemy[i].image, 1);
 	}
@@ -107,17 +108,38 @@ void drawGame() {
 }
 
 void advanceGame() {
+	// ========== Enemies ==========
+	for (uint8_t i; i < NUM_ENEMIES; i ++) {
+		Enemy[i].y += 1;
+	}
+	// ========== Player ==========
+	int speed = 4;
 	if ((~all_buttons) & (1 << DDB2)) {
-		Player.x += 1;
+		Player.x += speed;
+		if (Player.x > 66) {
+			Player.x = 0;
+		}
 	}
 	else if ((~all_buttons) & (1 << DDB3)) {
 	}
 	else if ((~all_buttons) & (1 << DDB4)) {
-		Player.x -= 1;
+		if (Player.x < speed || Player.x == 0) {
+			Player.x = 66;
+
+		}
+		else {
+
+			Player.x -= speed;
+		}
+
 	}
-	if (Player.x < 0) {
-		Player.x = 0;
-	}
+	// Player.x = Player.x % 66;
+	// if (Player.x < speed) {
+	// 	Player.x = 0;
+	// }
+	// else if (Player.x > 66) {
+	// 	Player.x = 66;
+	// }
 }
 
 void initButtonPins() {
@@ -158,23 +180,24 @@ int main() {
 	while (1) {
 		advanceGame();
 		// ========== Prepare the LCD ==========
+		Nokia5110_ClearBuffer();
 		Nokia5110_Clear();
-		nokia_lcd_render();
 
 		// ========== Draw the game object sprites ==========
 
 		drawGame();
+		nokia_lcd_render();
 
 
 		char out[10] = {0};
-		sprintf(out, "%d", Player.x);
-
+		sprintf(out, "%d", Player.y);
 		Nokia5110_OutString(out);
+
 		// nokia_lcd_render();
 		// button ++;
 		// drawGame();
 
-		mydelay_ms(100);
+		mydelay_ms(500);
 
 	}
 }
@@ -182,8 +205,6 @@ int main() {
 
 ISR(BADISR_vect) {
 	all_buttons = PIND;
-
-	// button = PIND;
 }
 
 
