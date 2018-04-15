@@ -70,19 +70,55 @@ struct State {
 
 typedef struct State STyp;
 
+const uint8_t NUM_ENEMIES =  4;
+
 STyp Enemy[4];
 STyp Player;
 STyp Missile;
 
-volatile int state;
-volatile int button;
-int* button_ptr = &button;
+volatile uint8_t all_buttons;
 
 void mydelay_ms(uint16_t count);
 
 
 // Atmega328 interrupts
 // https://sites.google.com/site/qeewiki/books/avr-guide/external-interrupts-on-the-atmega328
+void initGame() {
+	for (uint8_t i; i < NUM_ENEMIES; i ++) {
+		Enemy[i].x = 10 + i * 15;
+		Enemy[i].y = 20;
+		Enemy[i].image = SmallEnemy;
+
+	}
+	Player.x = 20;
+	Player.y = 40;
+	Player.image = PlayerShip;
+	Missile.x = -10;
+	Missile.y = -10;
+	Missile.image = MissileImg;
+}
+
+void drawGame() {
+	for (uint8_t i; i < NUM_ENEMIES; i ++) {
+		Nokia5110_PrintBMP(Enemy[i].x, Enemy[i].y, Enemy[i].image, 1);
+	}
+	Nokia5110_PrintBMP(Player.x, Player.y, Player.image, 1);
+	Nokia5110_PrintBMP(Missile.x, Missile.y, Missile.image, 1);
+}
+
+void advanceGame() {
+	if ((~all_buttons) & (1 << DDB2)) {
+		Player.x += 1;
+	}
+	else if ((~all_buttons) & (1 << DDB3)) {
+	}
+	else if ((~all_buttons) & (1 << DDB4)) {
+		Player.x -= 1;
+	}
+	if (Player.x < 0) {
+		Player.x = 0;
+	}
+}
 
 void initButtonPins() {
 	// Set B pins to input
@@ -100,14 +136,13 @@ void initButtonInterrupt() {
 	PCICR |= (1 << PCIE2);    // set PCIE2 to enable PCMSK0 scan
 	PCMSK2 |= (1 << PCINT18);
 	PCMSK2 |= (1 << PCINT19);
-	// PCMSK2 |= (1 << PCINT20);
+	PCMSK2 |= (1 << PCINT20);
 	sei();    // Enable interrupts
 }
 
 
 int main() {
-	state = 97;
-	button = 0;
+	all_buttons = 0xFF;
 
 	initButtonPins();
 	initButtonInterrupt();
@@ -117,37 +152,38 @@ int main() {
 	// nokia_lcd_fill();
 	Nokia5110_OutString("lcd is alive");
 	nokia_lcd_render();
+
+	initGame();
+
 	while (1) {
-		nokia_lcd_clear();
+		advanceGame();
+		// ========== Prepare the LCD ==========
+		Nokia5110_Clear();
 		nokia_lcd_render();
+
+		// ========== Draw the game object sprites ==========
+
+		drawGame();
+
+
 		char out[10] = {0};
-		sprintf(out, "%d", button);
+		sprintf(out, "%d", Player.x);
 
 		Nokia5110_OutString(out);
 		// nokia_lcd_render();
-		button ++;
-		state ++;
+		// button ++;
+		// drawGame();
+
 		mydelay_ms(100);
 
 	}
 }
 
-ISR(PCINT18_vect) {
-	cli();
-	Nokia5110_OutString("18");
-	*button_ptr = 18;
-	button = 18;
-	if ( (PIND & (1 << PIND2)) == 1 )
-	{
-		/* LOW to HIGH pin change */
 
-	}
-	else
-	{
-		/* HIGH to LOW pin change */
-		// state = 0;
-	}
-	sei();
+ISR(BADISR_vect) {
+	all_buttons = PIND;
+
+	// button = PIND;
 }
 
 
