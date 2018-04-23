@@ -1,7 +1,7 @@
 DEVICE     = atmega328p
 CLOCK      = 16000000
-PROGRAMMER = -c arduino -b 115200 -P COM3
-OBJECTS    = lab10.o USART.o
+PROGRAMMER = -c arduino -b 115200 -P /dev/ttyACM0
+OBJECTS    = labFinal.o USART.o
 FUSES      = -U hfuse:w:0xde:m -U lfuse:w:0xff:m -U efuse:w:0x05:m
 
 # Tune the lines below only if you know what you are doing:
