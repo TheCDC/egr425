@@ -16,6 +16,17 @@ SERIAL_PORT = "/dev/ttyACM0"  # Change this if it is different for you
 BAUD_RATE = 9600
 
 from twilio.rest import Client
+# make sure env vars file exists
+try:
+    with open('.env') as f:
+        pass
+except FileNotFoundError:
+    with open('.env', 'w') as f:
+        f.write("""TWILIO_SID=
+AUTH_TOKEN=
+TARGET_NUMBER=
+TWILIO_NUMBER=""")
+
 # put your own credentials here
 ACCOUNT_SID = os.environ.get('TWILIO_SID', "AC...put your SID here...")
 AUTH_TOKEN = os.environ.get('AUTH_TOKEN', "...put your auth token here...")
