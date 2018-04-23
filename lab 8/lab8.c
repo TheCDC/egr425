@@ -13,9 +13,9 @@ int main(void) {
 	initADC();
 	initTimer1Servo();
 	sei();
-while(1){
+	while (1) {
 
-}
+	}
 }
 
 
