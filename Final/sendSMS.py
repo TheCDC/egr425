@@ -55,9 +55,6 @@ while (1):
     if char == '\n':
         number = int(''.join(charbuffer))
         charbuffer = []
-        if len(reading_history) >= num_readings:
-            reading_history.pop(0)
-        reading_history.append(number)
     else:
         charbuffer.append(char)
     # response = sp.read(5)

@@ -20,6 +20,7 @@ const uint16_t threshhold2 = 30;
 #define QUIT return
 
 void mydelay_ms(uint16_t count);
+void initButtonInterrupt();
 void initADC();
 void initTimer1Servo();
 void initLED();
@@ -27,6 +28,7 @@ void setLED(int);
 uint16_t readADC();
 
 int main(void) {
+	initButtonInterrupt();
 	initLED();
 	initUSART();
 	initADC();
@@ -75,11 +77,13 @@ void doStateChange() {
 }
 
 
-
 ISR(BADISR_vect) {
-	// enterState(OK);
-	// doStateChange(adcValue);
+	// uint8_t prev = all_buttons;
+	// all_buttons = PIND & all_buttons;
+	// printWord(100);
+	WUBWUB = 0;
 }
+
 
 
 ISR(ADC_vect) {
@@ -117,6 +121,19 @@ uint16_t readADC() {
 	r = ((ADCH) << 8) | l;
 
 	return r;
+}
+
+void initButtonInterrupt() {
+	// EIMSK |= (1 << INT2);
+	// EICRA &= 0b0000;
+		// Set B pins to input
+	DDRD = 0x00;
+
+	// Enable pull-up resistors
+	PORTD |= (1 << DDB2); // digital pin 2
+	PCICR |= (1 << PCIE2);    // set PCIE2 to enable PCMSK0 scan
+	PCMSK2 |= (1 << PCINT18);
+	sei();    // Enable interrupts
 }
 
 void initTimer1Servo(void) {
