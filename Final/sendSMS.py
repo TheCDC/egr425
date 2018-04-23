@@ -1,6 +1,7 @@
 import serial
 import webbrowser
 import time
+import os
 
 ### INSTRUCTIONS ###
 # 0. On your command prompt, run "pip install twilio"
@@ -15,12 +16,13 @@ SERIAL_PORT = "/dev/ttyACM0"  # Change this if it is different for you
 BAUD_RATE = 9600
 
 from twilio.rest import Client
-
 # put your own credentials here
-ACCOUNT_SID = "AC...put your SID here..."
-AUTH_TOKEN = "...put your auth token here..."
-myNumber = '+195100011111'  # put your cell phone number here
-twilioNumber = '+18881112222'  # put your twilio number here
+ACCOUNT_SID = os.environ.get('TWILIO_SID', "AC...put your SID here...")
+AUTH_TOKEN = os.environ.get('AUTH_TOKEN', "...put your auth token here...")
+# put your cell phone number here
+myNumber = os.environ.get('TARGET_NUMBER', '+195100011111')
+# put your twilio number here
+twilioNumber = os.environ.get('TWILIO_NUMBER', '+18881112222')
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
@@ -32,22 +34,27 @@ sp = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=5)
 sp.flush()
 
 print("Listening...")
-
 charbuffer = []
+number = -1
+reading_history = [number]
+num_readings = 10
 # loop forever
 while (1):
     # read 5 characters from the serial port
-    char = sp.read()
+    char = sp.read().decode('utf-8')
     if char == '\n':
         number = int(''.join(charbuffer))
         charbuffer = []
+        if len(reading_history) >= num_readings:
+            reading_history.pop(0)
+        reading_history.append(number)
+    else:
+        charbuffer.append(char)
     # response = sp.read(5)
+    smoothed_reading = sum(reading_history) / len(reading_history)
     print(number)
-    try:
-        if int(number) >= 30:
-            print("Over threshold! Sending SMS...")
-            # READ twilio documentation to figure out how to send SMS using twilio API
-            # https://www.twilio.com/docs/quickstart/python/sms/sending-via-rest
+    if int(number) >= 30:
+        print("Over threshold! Sending SMS...")
+        # READ twilio documentation to figure out how to send SMS using twilio API
+        # https://www.twilio.com/docs/quickstart/python/sms/sending-via-rest
     # time.sleep(1)
-    except ValueError:
-        pass

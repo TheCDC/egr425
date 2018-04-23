@@ -32,7 +32,8 @@ int main(void) {
     initTimer1Servo();
     sei();
     while (1) {
-        printWord((uint16_t)temperature);
+        printWord((int)temperature);
+        printString("\n");
         mydelay_ms(200);
     }
 }
@@ -76,13 +77,13 @@ ISR(BADISR_vect) {
 
 ISR(ADC_vect) {
     ADCSRA &= ~(1 << ADIE);    // Disable Interrupts
-    adcValue = readADC();
+    adcValue = (adcValue*3 + readADC())/4;
     // OCR1A = ((adcValue >> 3) << 6);
     ICR1 = adcValue << 5;
 
     ADCSRA |= (1 << ADIE);    // enable Interrupts
     float mvReading = (5000.0 / 1024.0) * adcValue;
-    temperature = (mvReading - 500.0) / 10.0;
+	temperature = (mvReading - 500.0) / 10.0;
     // mydelay_ms(1);
 
 }
