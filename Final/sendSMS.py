@@ -47,6 +47,8 @@ sp.flush()
 print("Listening...")
 charbuffer = []
 number = -1
+time_between_sms = 3
+last_sent_time = time.time() - time_between_sms
 # loop forever
 while (1):
     # buffer characters read over serial
@@ -59,8 +61,11 @@ while (1):
         charbuffer.append(char)
     # response = sp.read(5)
     print(number)
+    now = time.time()
     if int(number) >= 30:
-        print("Over threshold! Sending SMS...")
+        if now - last_sent_time >= time_between_sms:
+            last_sent_time = now
+            print("Over threshold! Sending SMS...")
         # READ twilio documentation to figure out how to send SMS using twilio API
         # https://www.twilio.com/docs/quickstart/python/sms/sending-via-rest
     # time.sleep(1)
