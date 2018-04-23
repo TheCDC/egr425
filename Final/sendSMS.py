@@ -33,16 +33,21 @@ sp.flush()
 
 print("Listening...")
 
+charbuffer = []
 # loop forever
 while (1):
     # read 5 characters from the serial port
-    response = sp.read(5)
-    print(response)
+    char = sp.read()
+    if char == '\n':
+        number = int(''.join(charbuffer))
+        charbuffer = []
+    # response = sp.read(5)
+    print(number)
     try:
-	    if int(response) >= 30:
-	        print("Over threshold! Sending SMS...")
-	        # READ twilio documentation to figure out how to send SMS using twilio API
-	        # https://www.twilio.com/docs/quickstart/python/sms/sending-via-rest
+        if int(number) >= 30:
+            print("Over threshold! Sending SMS...")
+            # READ twilio documentation to figure out how to send SMS using twilio API
+            # https://www.twilio.com/docs/quickstart/python/sms/sending-via-rest
     # time.sleep(1)
     except ValueError:
-    	pass
+        pass
