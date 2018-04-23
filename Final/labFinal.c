@@ -4,13 +4,15 @@
 
 
 volatile int dis;
-uint16_t adcValue = 0;
-uint16_t threshhold1 = 0;
-uint16_t threshhold2 = 0;
-float temp = 0;
+volatile uint16_t adcValue = 0;
+volatile float temperature = 0;
+
+const uint16_t threshhold1 = 0;
+const uint16_t threshhold2 = 0;
 
 
 
+// Macros to make code meme-ier
 #define OK 0
 #define LIT 1
 #define TOO_LIT 2
@@ -19,20 +21,26 @@ float temp = 0;
 void mydelay_ms(uint16_t count);
 void initADC();
 void initTimer1Servo();
+void initLED();
+void setLED(int);
 uint16_t readADC();
 
 int main(void) {
+    initLED();
     initUSART();
     initADC();
     initTimer1Servo();
     sei();
     while (1) {
-        printWord((uint16_t)temp);
+        printWord((uint16_t)temperature);
         mydelay_ms(200);
     }
 }
 
 void enterState(int newState) {
+    if (dis == newState) {
+        return;
+    }
     dis = newState;
     if (dis == OK) {
         // turn off light
@@ -74,7 +82,7 @@ ISR(ADC_vect) {
 
     ADCSRA |= (1 << ADIE);    // enable Interrupts
     float mvReading = (5000.0 / 1024.0) * adcValue;
-    temp = (mvReading - 500.0) / 10.0;
+    temperature = (mvReading - 500.0) / 10.0;
     // mydelay_ms(1);
 
 }
@@ -112,6 +120,18 @@ void initTimer1Servo(void) {
     DDRB |= (1 << 1);
 }
 
+void initLED(void) {
+    DDRB |= (1 << 0);
+
+}
+
+void setLED(int enabled) {
+    if (enabled) {
+        PORTB |= (1 << 0);
+    } else {
+        PORTB &= ~(1 << 0);
+    }
+}
 
 void initADC() {
     ADMUX = 0;                // use ADC0
